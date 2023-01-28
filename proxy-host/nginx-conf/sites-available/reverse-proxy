@@ -1,0 +1,13 @@
+upstream backend {
+        server 10.10.2.1:80;
+        keepalive 32;
+}
+ 
+server {
+    listen 80;
+    location / {
+        proxy_pass http://backend;
+        proxy_http_version 1.1;
+        proxy_set_header   "Connection" "";
+    }
+}
