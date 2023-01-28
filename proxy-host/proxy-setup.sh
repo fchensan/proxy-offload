@@ -20,4 +20,53 @@ is_nginx_stopped () {
 	fi
 }
 
-echo $(is_nginx_stopped)
+stop_nginx () {
+	sudo nginx -s quit
+}
+
+stop_haproxy () {
+	sudo pkill haproxy
+}
+
+start_haproxy () {
+	if ! is_nginx_stopped
+	then
+		echo "NGINX is running, telling it to quit now."
+		stop_nginx
+	fi
+	ulimit -n 100000
+	echo "Starting HAProxy."
+	sudo taskset -c 0-7 haproxy -D -f $2/haproxy-main.cfg
+}
+
+start_nginx () {
+	if ! is_haproxy_stopped
+	then
+		echo "HAProxy is running, killing it now."
+		stop_haproxy
+	fi
+	ulimit -n 100000
+	ENABLED=/etc/nginx/sites-enabled/*
+	for FILE in $ENABLED
+	do
+		echo "Removing $FILE"
+		sudo rm -f $FILE
+	done
+	sudo cp $2/sites-available/reverse-proxy /etc/nginx/sites-available/reverse-proxy
+	sudo ln -s /etc/nginx/sites-available/reverse-proxy /etc/nginx/sites-enabled/reverse-proxy
+	echo "Starting NGINX"
+	sudo nginx -c /etc/nginx/nginx.conf
+}
+
+# test
+
+if [ $1 == haproxy ]
+then
+	start_haproxy
+elif [ $1 == "nginx" ] 
+then
+# 	echo "hello" 
+	start_nginx
+else
+	echo "$1 not recognized."
+fi
