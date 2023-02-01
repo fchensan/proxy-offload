@@ -1,5 +1,7 @@
+#!/usr/bin/bash
+
 is_haproxy_stopped () {
-	if [ -z $(pgrep haproxy) ]
+	if [[ -z $(pgrep haproxy) ]]
 	then
 		echo "HAProxy is not running."
 		return 0 
@@ -10,7 +12,7 @@ is_haproxy_stopped () {
 }
 
 is_nginx_stopped () {
-	if [ -z $(pgrep nginx) ]
+	if [[ -z $(pgrep nginx) ]]
 	then
 		echo "NGINX is not running."
 		return 0 
@@ -34,6 +36,11 @@ start_haproxy () {
 		echo "NGINX is running, telling it to quit now."
 		stop_nginx
 	fi
+	if ! is_haproxy_stopped
+	then
+		echo "HAProxy already running!"
+		exit
+	fi
 	ulimit -n 100000
 	echo "Starting HAProxy."
 	sudo taskset -c 0-7 haproxy -D -f $2/haproxy-main.cfg
@@ -44,6 +51,11 @@ start_nginx () {
 	then
 		echo "HAProxy is running, killing it now."
 		stop_haproxy
+	fi
+	if ! is_nginx_stopped
+	then
+		echo "NGINX already running!"
+		exit
 	fi
 	ulimit -n 100000
 	ENABLED=/etc/nginx/sites-enabled/*
@@ -58,9 +70,11 @@ start_nginx () {
 	sudo nginx -c /etc/nginx/nginx.conf
 }
 
-# test
 
-if [ $1 == haproxy ]
+start_nginx $1 $2
+
+
+: 'if [ $1 == haproxy ]
 then
 	start_haproxy
 elif [ $1 == "nginx" ] 
@@ -70,3 +84,4 @@ then
 else
 	echo "$1 not recognized."
 fi
+'
