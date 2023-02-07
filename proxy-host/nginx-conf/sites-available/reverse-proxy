@@ -1,6 +1,7 @@
 upstream backend {
         server 10.10.2.1:80;
-        keepalive 32;
+        keepalive 320000;
+	keepalive_requests 100000;
 }
  
 server {
@@ -9,5 +10,6 @@ server {
         proxy_pass http://backend;
         proxy_http_version 1.1;
         proxy_set_header   "Connection" "";
+	keepalive_requests 100000;
     }
 }
