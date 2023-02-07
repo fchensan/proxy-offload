@@ -23,10 +23,12 @@ is_nginx_stopped () {
 }
 
 stop_nginx () {
+	sudo systemctl stop nginx
 	sudo nginx -s quit
 }
 
 stop_haproxy () {
+	sudo systemctl stop haproxy
 	sudo pkill haproxy
 }
 
@@ -39,7 +41,7 @@ start_haproxy () {
 	if ! is_haproxy_stopped
 	then
 		echo "HAProxy already running!"
-		exit
+		stop_haproxy
 	fi
 	ulimit -n 100000
 	echo "Starting HAProxy."
@@ -55,7 +57,7 @@ start_nginx () {
 	if ! is_nginx_stopped
 	then
 		echo "NGINX already running!"
-		exit
+		stop_nginx
 	fi
 	ulimit -n 100000
 	ENABLED=/etc/nginx/sites-enabled/*
