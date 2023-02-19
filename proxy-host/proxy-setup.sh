@@ -78,6 +78,7 @@ start_nginx () {
 	done
 	if [[ $MODE == "tcp" ]]
 	then
+		echo "Setting up TCP mode"
 		sudo cp $CONFIG_PATH/sites-available/tcp-proxy /etc/nginx/sites-available/tcp-proxy
 		sudo ln -s /etc/nginx/sites-available/tcp-proxy /etc/nginx/sites-enabled/tcp-proxy
 		sudo cp $CONFIG_PATH/nginx-tcp.conf /etc/nginx/nginx.conf
