@@ -1,0 +1,10 @@
+stream {
+upstream backend {
+        server 10.10.1.1:5002;
+        server 10.10.1.1:5003;
+}
+server {
+    listen 5001;
+    proxy_pass backend;
+}
+}
