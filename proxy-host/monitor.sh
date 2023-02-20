@@ -1,6 +1,6 @@
 #!/bin/bash
 
-INTERVAL="1"  # update interval in seconds
+INTERVAL=$3  # update interval in seconds
 
 if [ -z "$1" ]; then
         echo
@@ -14,7 +14,7 @@ fi
 
 IF=$1
 
-echo "TX $1 pps,TX $1 kB/s,TX $2 pps,TX $1 kB/s,RX $1 pps,RX $1 kB/s,RX $2 pps,RX $2 kB/s,CPU user percent,CPU system percent,CPU idle percent,"
+echo "datetime,TX $1 pps,TX $1 kB/s,TX $2 pps,TX $1 kB/s,RX $1 pps,RX $1 kB/s,RX $2 pps,RX $2 kB/s,CPU user percent,CPU system percent,CPU idle percent,TCP sockets,TCP Established"
 
 while true
 do
@@ -39,17 +39,19 @@ do
 
         TBPS=`expr $TB2 - $TB1`
         RBPS=`expr $RB2 - $RB1`
-        TKBPS=`expr $TBPS / 1024`
-        RKBPS=`expr $RBPS / 1024`
+	TKBPS=$(( ($TBPS / 1024 / $INTERVAL) * 8))
+	RKBPS=$(( ($RBPS / 1024 / $INTERVAL) * 8))
         TXPPS=`expr $T2 - $T1`
         RXPPS=`expr $R2 - $R1`
         TBPS2=`expr $TB22 - $TB12`
         RBPS2=`expr $RB22 - $RB12`
-        TKBPS2=`expr $TBPS2 / 1024`
-        RKBPS2=`expr $RBPS2 / 1024`
+	TKBPS2=$(( ($TBPS2 / 1024 / $INTERVAL) * 8))
+	RKBPS2=$(( ($RBPS2 / 1024 / $INTERVAL) * 8))
         TXPPS2=`expr $T22 - $T12`
         RXPPS2=`expr $R22 - $R12`
 
 	CPU=$(vmstat | tail -1 | awk '{print $13,$14,$15}' | tr -s '[:blank:]' ',')
-        echo "$TXPPS,$TKBPS,$RXPPS,$RKBPS,$TXPPS2,$TKBPS2,$RXPPS2,$RKBPS2,$CPU"
+	ESTABLISHED=$(ss -s | grep TCP: | awk '{print $4}')
+	DATETIME=$(date)
+        echo "$DATETIME,$TXPPS,$TKBPS,$RXPPS,$RKBPS,$TXPPS2,$TKBPS2,$RXPPS2,$RKBPS2,$CPU,$ESTABLISHED"
 done
