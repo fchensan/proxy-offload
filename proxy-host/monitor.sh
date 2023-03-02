@@ -14,7 +14,7 @@ fi
 
 IF=$1
 
-echo "datetime,TX $1 pps,TX $1 kB/s,TX $2 pps,TX $1 kB/s,RX $1 pps,RX $1 kB/s,RX $2 pps,RX $2 kB/s,CPU user percent,CPU system percent,CPU idle percent,TCP sockets,TCP Established"
+echo "datetime,TX $1 pps,TX $1 kB/s,TX $2 pps,TX $1 kB/s,RX $1 pps,RX $1 kB/s,RX $2 pps,RX $2 kB/s,TCP Established"
 
 while true
 do
@@ -50,8 +50,7 @@ do
         TXPPS2=`expr $T22 - $T12`
         RXPPS2=`expr $R22 - $R12`
 
-	CPU=$(vmstat | tail -1 | awk '{print $13,$14,$15}' | tr -s '[:blank:]' ',')
 	ESTABLISHED=$(ss -s | grep TCP: | awk '{print $4}')
-	DATETIME=$(date)
-        echo "$DATETIME,$TXPPS,$TKBPS,$RXPPS,$RKBPS,$TXPPS2,$TKBPS2,$RXPPS2,$RKBPS2,$CPU,$ESTABLISHED"
+	DATETIME=$(date +%H:%M:%S)
+        echo "$DATETIME,$TXPPS,$TKBPS,$RXPPS,$RKBPS,$TXPPS2,$TKBPS2,$RXPPS2,$RKBPS2,$ESTABLISHED"
 done
