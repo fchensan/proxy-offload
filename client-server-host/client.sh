@@ -12,37 +12,32 @@ elif [[ $1 == tcp ]]
 then
 	sudo pkill iperf
 	sleep 2
-	sudo iperf -s -p 5002 -D -o iperf-server.log 2> iperf-server.err
-	sudo iperf -s -p 5004 -D -o iperf-server2.log 2> iperf-server2.err
-	sudo iperf -s -p 5006 -D -o iperf-server3.log 2> iperf-server3.err
-	sudo iperf -s -p 5008 -D -o iperf-server4.log 2> iperf-server4.err
-	sudo iperf -s -p 5010 -D -o iperf-server5.log 2> iperf-server5.err
-	sudo iperf -s -p 5012 -D -o iperf-server6.log 2> iperf-server6.err
-	sudo iperf -s -p 5014 -D -o iperf-server7.log 2> iperf-server7.err
-	sudo iperf -s -p 5016 -D -o iperf-server8.log 2> iperf-server8.err
+	echo "Starting servers."
+	PROCESSES=$2
+	SERVER_PORT_START=40000
+	SERVER_PORT_END=$((39999+PROCESSES))
+	for PORT in $(seq $SERVER_PORT_START $SERVER_PORT_END)
+	do
+	 	echo $PORT
+		~/iperf/src/iperf3 -s -p $PORT -i 0 -D --snd-timeout 300000
+	done
 	sleep 3
-	echo "Starting first one"
-	nohup iperf -c $2 -p 5001 -o iperf-logs/iperf.log -P $3 -t 1000 2> test.log &
-	sleep 50
-	echo "Starting second one"
-	nohup iperf -c $2 -p 5003 -o iperf-logs/iperf2.log -P $3 -t 1000 2> test2.log &
-	sleep 50
-	echo "Starting third one"
-	nohup iperf -c $2 -p 5005 -o iperf-logs/iperf3.log -P $3 -t 1000 2> test3.log &
-	sleep 50
-	echo "Starting fourth one"
-	nohup iperf -c $2 -p 5007 -o iperf-logs/iperf4.log -P $3 -t 1000 2> test4.log &
-	sleep 100
-	echo "Starting fourth one"
-	nohup iperf -c $2 -p 5009 -o iperf-logs/iperf5.log -P $3 -t 1000 2> test5.log &
-	sleep 50
-	echo "Starting fourth one"
-	nohup iperf -c $2 -p 5011 -o iperf-logs/iperf6.log -P $3 -t 1000 2> test6.log &
-	sleep 50
-	echo "Starting fourth one"
-	nohup iperf -c $2 -p 5013 -o iperf-logs/iperf7.log -P $3 -t 1000 2> test7.log &
-	sleep 50
-	echo "Starting fourth one"
-	nohup iperf -c $2 -p 5015 -o iperf-logs/iperf8.log -P $3 -t 1000 2> test8.log &
-	sleep 50
+	echo "Starting clients."
+	DURATION=$3
+	CLIENT_PORT_START=30000
+	SERVER_PORT_END=$((29999+PROCESSES))
+	for PORT in $(seq $CLIENT_PORT_START $SERVER_PORT_END) 
+	do
+		echo $PORT
+		nohup ~/iperf/src/iperf3 -c 10.10.1.3 -f m -p $PORT -i 1 -t $DURATION --snd-timeout 300000 > logs/iperf3-$PORT.log 2> logs/iperf3-$PORT.err &
+		sleep 1s
+	done
+	echo "Letting experiment run..."
+	sleep $DURATION 
+	sleep 5
+	echo "Printing reports after waiting for $DURATION"
+	for PORT in $(seq $CLIENT_PORT_START $SERVER_PORT_END)
+	do
+		tail -n 3 logs/iperf3-$PORT.log | head -n 1
+	done
 fi
