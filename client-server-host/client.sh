@@ -12,30 +12,22 @@ elif [[ $1 == tcp ]]
 then
 	sudo pkill iperf
 	sleep 2
-	echo "Starting servers."
 	PROCESSES=$2
-	SERVER_PORT_START=40000
-	SERVER_PORT_END=$((39999+PROCESSES))
-	for PORT in $(seq $SERVER_PORT_START $SERVER_PORT_END)
-	do
-	 	echo $PORT
-		~/iperf/src/iperf3 -s -p $PORT -i 0 -D --snd-timeout 300000
-	done
-	sleep 3
 	echo "Starting clients."
 	DURATION=$3
 	CLIENT_PORT_START=30000
 	SERVER_PORT_END=$((29999+PROCESSES))
 	for PORT in $(seq $CLIENT_PORT_START $SERVER_PORT_END) 
 	do
-		echo $PORT
-		nohup ~/iperf/src/iperf3 -c 10.10.1.3 -f m -p $PORT -i 1 -t $DURATION --snd-timeout 300000 > logs/iperf3-$PORT.log 2> logs/iperf3-$PORT.err &
-		sleep 1s
+		echo -ne "$PORT/$SERVER_PORT_END                         \r\c"
+		nohup ~/iperf/src/iperf3 -c 10.10.1.3 -f m -p $PORT -P 128 -b 16384 -i 60 -t $DURATION -b 9830 --snd-timeout 300000 > logs/iperf3-$PORT.log 2> logs/iperf3-$PORT.err &
+		sleep 2s
 	done
-	echo "Letting experiment run..."
+	echo "$SERVER_PORT_END/$SERVER_PORT_END [Done]"
+	echo "Letting experiment run for another $DURATION second(s)"
 	sleep $DURATION 
+	echo "Printing reports..."
 	sleep 5
-	echo "Printing reports after waiting for $DURATION"
 	for PORT in $(seq $CLIENT_PORT_START $SERVER_PORT_END)
 	do
 		tail -n 3 logs/iperf3-$PORT.log | head -n 1
