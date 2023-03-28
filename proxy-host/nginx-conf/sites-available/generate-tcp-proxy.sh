@@ -1,3 +1,4 @@
+#!/bin/bash
 echo "stream {"
     for PORT in {30000..30999}
     do

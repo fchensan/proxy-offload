@@ -47,7 +47,7 @@ start_haproxy () {
 		echo "HAProxy already running!"
 		stop_haproxy
 	fi
-	ulimit -n 100000
+	ulimit -n 1000000
 	echo "Starting HAProxy."
 	if [[ $MODE == "tcp" ]]
 	then 
@@ -69,7 +69,7 @@ start_nginx () {
 		echo "NGINX already running!"
 		stop_nginx
 	fi
-	ulimit -n 100000
+	ulimit -n 1000000
 	ENABLED=/etc/nginx/sites-enabled/*
 	for FILE in $ENABLED
 	do

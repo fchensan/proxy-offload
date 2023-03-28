@@ -14,7 +14,7 @@ fi
 
 IF=$1
 
-echo "datetime,TX $1 pps,TX $1 kB/s,TX $2 pps,TX $1 kB/s,RX $1 pps,RX $1 kB/s,RX $2 pps,RX $2 kB/s,TCP Established"
+echo "datetime,TX $1 pps,TX $1 kbps,RX $1 pps,RX $1 kB/s,TX $2 pps,TX $2 kbps,RX $2 pps,RX $2 kB/s,TCP Established,"
 
 while true
 do

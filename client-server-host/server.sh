@@ -16,7 +16,7 @@ then
 	for PORT in $(seq $SERVER_PORT_START $SERVER_PORT_END)
 	do
 	 	echo -ne "$PORT/$SERVER_PORT_END                         \r\c"
-		~/iperf/src/iperf3 -s -p $PORT -i 0 -D --rcv-timeout 300000 
+		nohup ~/iperf/src/iperf3 -s -p $PORT -i 0 --verbose > logs-server/server-$PORT.log 2> logs-server/server-$PORT.err &
 	done
 	echo "$SERVER_PORT_END/$SERVER_PORT_END [Done]"
 fi
