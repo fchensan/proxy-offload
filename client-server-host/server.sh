@@ -11,8 +11,8 @@ then
 	sleep 2
 	echo "Starting servers."
 	PROCESSES=$2
-	SERVER_PORT_START=40000
-	SERVER_PORT_END=$((39999+PROCESSES))
+	SERVER_PORT_START=30000
+	SERVER_PORT_END=$((29999+PROCESSES))
 	for PORT in $(seq $SERVER_PORT_START $SERVER_PORT_END)
 	do
 	 	echo -ne "$PORT/$SERVER_PORT_END                         \r\c"
