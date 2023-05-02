@@ -73,8 +73,9 @@ class Node():
 
     def stop_and_retrieve_sar(self, filepath):
         received_data = self.send_command(STOP_RETRIEVE_SAR, receive=True)
+        print(received_data)
         with open(filepath, "w") as file:
-            file.write(received_data['content'].encode('utf-8'))
+            file.write(received_data['content'])
 
     def stop_and_retrieve_monitor_script(self):
         pass
@@ -105,9 +106,9 @@ class Agent():
 
     def stop_and_retrieve_sar(self, connection):
         subprocess.run("sudo pkill sar".split())
-        with open("/tmp/temp-sar.log", 'rb') as file:
+        with open("/tmp/temp-sar.log", 'r') as file:
             file_contents = file.read()
-            data = {"content": str(file_contents)}
+            data = {"content": file_contents}
             json_data = json.dumps(data)
             connection.sendall(json_data.encode("utf-8"))
             
