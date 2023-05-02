@@ -34,12 +34,8 @@ class Node():
         server_address = (self.address, self.listening_port)
         sock.connect(server_address)
 
-        print("sending")
-
         # Send the JSON data over the socket
         sock.sendall(json_data.encode())
-
-        print("receiving")
 
         if receive:
             received_data = b""
@@ -78,7 +74,7 @@ class Node():
     def stop_and_retrieve_sar(self, filepath):
         received_data = self.send_command(STOP_RETRIEVE_SAR, receive=True)
         with open(filepath, "w") as file:
-            file.write(received_data['content'])
+            file.write(received_data['content'].encode('utf-8'))
 
     def stop_and_retrieve_monitor_script(self):
         pass
