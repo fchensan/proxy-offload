@@ -8,6 +8,7 @@ DEFAULT_LISTENING_PORT = 22346
 START_CLIENT = 0
 START_SAR = 1
 STOP_RETRIEVE_SAR = 2
+RETRIEVE_IPERF = 3
 
 def is_json(string):
     try:
@@ -70,6 +71,11 @@ class Node():
 
     def start_monitor_script(self):
         pass
+    
+    def retrieve_iperf_log(self, port, filepath):
+        received_data = self.send_command(RETRIEVE_IPERF, options={"port":port}, receive=True)
+        with open(filepath, "w") as file:
+            file.write(received_data['content'])
 
     def stop_and_retrieve_sar(self, filepath):
         received_data = self.send_command(STOP_RETRIEVE_SAR, receive=True)
@@ -87,7 +93,7 @@ class Agent():
         pass
 
     def start_iperf_client(self, server_address, server_port, duration, num_streams, target_bitrate):
-        command = f"nohup iperf3 -c {server_address} -p {server_port} -t {duration} -P {num_streams} -b {target_bitrate} > /dev/null 2> /dev/null &"
+        command = f"nohup iperf3 -c {server_address} -p {server_port} -t {duration} -P {num_streams} -b {target_bitrate} > /tmp/iperf-{server_port}.log 2> /tmp/iperf-{server_port}.err &"
         subprocess.run(command, shell=True)
 
     def kill_all_iperf(self):
@@ -106,6 +112,13 @@ class Agent():
     def stop_and_retrieve_sar(self, connection):
         subprocess.run("sudo pkill sar".split())
         with open("/tmp/temp-sar.log", 'r') as file:
+            file_contents = file.read()
+            data = {"content": file_contents}
+            json_data = json.dumps(data)
+            connection.sendall(json_data.encode("utf-8"))
+
+    def retrieve_iperf_log(self, connection, port):
+        with open(f"/tmp/iperf-{port}.log", 'r') as file:
             file_contents = file.read()
             data = {"content": file_contents}
             json_data = json.dumps(data)
@@ -153,6 +166,8 @@ class Agent():
                     self.start_sar()
                 elif received_data['command'] == STOP_RETRIEVE_SAR:
                     self.stop_and_retrieve_sar(connection)
+                elif received_data['command'] == RETRIEVE_IPERF:
+                    self.retrieve_iperf_log(connection, options['port'])
 
                 # Close the connection
                 connection.close()
