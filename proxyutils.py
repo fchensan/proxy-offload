@@ -155,7 +155,7 @@ class Agent():
                 elif received_data['command'] == START_SAR:
                     self.start_sar()
                 elif received_data['command'] == STOP_RETRIEVE_SAR:
-                    self.stop_and_retrieve_sar()
+                    self.stop_and_retrieve_sar(connection)
 
                 # Close the connection
                 connection.close()
