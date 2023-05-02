@@ -131,9 +131,7 @@ class Agent():
                 connection, client_address = sock.accept()
 
                 # Receive the JSON data over the socket
-                data = b''
-                while True:
-                    data = connection.recv(1024)
+                data = connection.recv(1024)
 
                 # Deserialize the JSON data into a Python dictionary
                 json_data = data.decode()
