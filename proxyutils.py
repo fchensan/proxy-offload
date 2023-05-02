@@ -109,7 +109,7 @@ class Agent():
             file_contents = file.read()
             data = {"content": str(file_contents)}
             json_data = json.dumps(data)
-            connection.sendall(json_data.bytes("utf-8"))
+            connection.sendall(json_data.encode("utf-8"))
             
     def stop_and_retrieve_monitor_script(self):
         pass
