@@ -9,6 +9,7 @@ START_CLIENT = 0
 START_SAR = 1
 STOP_RETRIEVE_SAR = 2
 RETRIEVE_IPERF = 3
+RESET = 4
 
 def is_json(string):
     try:
@@ -87,6 +88,9 @@ class Node():
     def stop_and_retrieve_monitor_script(self):
         pass
 
+    def reset(self):
+        self.send_command(RESET)
+
 class Agent():
     def __init__(self):
         pass
@@ -132,6 +136,10 @@ class Agent():
     def stop_and_retrieve_monitor_script(self):
         pass
 
+    def reset(self):
+        command = f"sudo pkill iperf; sudo pkill sar;"
+        subprocess.run(command, shell=True)
+
     def listen(self, address="0.0.0.0", port=DEFAULT_LISTENING_PORT):
         # Create a TCP socket
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -173,6 +181,8 @@ class Agent():
                     self.stop_and_retrieve_sar(connection)
                 elif received_data['command'] == RETRIEVE_IPERF:
                     self.retrieve_iperf_log(connection, options['port'])
+                elif received_data['command'] == RESET:
+                    self.reset()
 
                 # Close the connection
                 connection.close()
