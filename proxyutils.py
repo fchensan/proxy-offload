@@ -73,7 +73,6 @@ class Node():
 
     def stop_and_retrieve_sar(self, filepath):
         received_data = self.send_command(STOP_RETRIEVE_SAR, receive=True)
-        print(received_data)
         with open(filepath, "w") as file:
             file.write(received_data['content'])
 
