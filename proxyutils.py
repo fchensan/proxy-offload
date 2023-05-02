@@ -57,7 +57,7 @@ class Node():
         # Create a dictionary to send over the socket
         self.send_command(START_CLIENT, {
             "server_address": server_address,
-            "server_port": server_port,
+            "port": server_port,
             "duration": duration,
             "num_streams": num_streams,
             "target_bitrate": target_bitrate
