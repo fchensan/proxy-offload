@@ -107,7 +107,9 @@ class Agent():
         subprocess.run("sudo pkill sar".split())
         with open("/tmp/temp-sar.log", 'rb') as file:
             file_contents = file.read()
-            connection.sendall(file_contents)
+            data = {"content": str(file_contents)}
+            json_data = json.dumps(data)
+            connection.sendall(json_data.bytes("utf-8"))
             
     def stop_and_retrieve_monitor_script(self):
         pass
