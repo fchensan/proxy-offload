@@ -53,10 +53,14 @@ class Node():
     def start_iperf_server(self):
         pass
 
-    def start_iperf_client(self):
+    def start_iperf_client(self, server_address, server_port, duration, num_streams, target_bitrate):
         # Create a dictionary to send over the socket
         self.send_command(START_CLIENT, {
-            "server": "10.10.1.3"
+            "server_address": server_address,
+            "server_port": server_port,
+            "duration": duration,
+            "num_streams": num_streams,
+            "target_bitrate": target_bitrate
         })
 
     def kill_all_iperf(self):
