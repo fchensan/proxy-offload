@@ -133,10 +133,7 @@ class Agent():
                 # Receive the JSON data over the socket
                 data = b''
                 while True:
-                    chunk = connection.recv(1024)
-                    if not chunk:
-                        break
-                    data += chunk
+                    data = connection.recv(1024)
 
                 # Deserialize the JSON data into a Python dictionary
                 json_data = data.decode()
