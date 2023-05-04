@@ -202,6 +202,8 @@ class Agent():
                 elif received_data['command'] == START_MONITOR:
                     options = received_data['options']
                     self.start_monitor_script(options['interface'])
+                elif received_data['command'] == STOP_RETRIEVE_MONITOR:
+                    self.stop_and_retrieve_monitor_script(connection)
 
                 # Close the connection
                 connection.close()
