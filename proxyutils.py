@@ -143,7 +143,7 @@ class Agent():
         json_data = json.dumps(data)
         connection.sendall(json_data.encode("utf-8"))
             
-    def stop_and_retrieve_monitor_script(self):
+    def stop_and_retrieve_monitor_script(self, connection):
         command = f"sudo pkill monitor.sh;"
         subprocess.run(command, shell=True)
         with open("/tmp/temp-monitor.log", 'r') as file:
