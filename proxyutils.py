@@ -196,6 +196,7 @@ class Agent():
                 elif received_data['command'] == STOP_RETRIEVE_SAR:
                     self.stop_and_retrieve_sar(connection)
                 elif received_data['command'] == RETRIEVE_IPERF:
+                    options = received_data['options']
                     self.retrieve_iperf_log(connection, options['port'])
                 elif received_data['command'] == RESET:
                     self.reset()
