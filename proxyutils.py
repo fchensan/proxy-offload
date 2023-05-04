@@ -58,7 +58,7 @@ class Node():
             "port": server_port,
             "duration": duration,
             "num_streams": num_streams,
-            "target_bitrate": target_bitrate
+            "target_bitrate": (None if target_bitrate==0 else target_bitrate)
         })
 
     def kill_all_iperf(self):
@@ -99,7 +99,10 @@ class Agent():
         pass
 
     def start_iperf_client(self, server_address, server_port, duration, num_streams, target_bitrate):
-        command = f"nohup iperf3 -c {server_address} -p {server_port} -t {duration} -P {num_streams} -b {target_bitrate} -i 20 --timestamp > /tmp/iperf-{server_port}.log 2> /tmp/iperf-{server_port}.err &"
+        if target_bitrate == None:
+            command = f"nohup iperf3 -c {server_address} -p {server_port} -t {duration} -P {num_streams} -i 20 --timestamp > /tmp/iperf-{server_port}.log 2> /tmp/iperf-{server_port}.err &"
+        else:
+            command = f"nohup iperf3 -c {server_address} -p {server_port} -t {duration} -P {num_streams} -b {target_bitrate} -i 20 --timestamp > /tmp/iperf-{server_port}.log 2> /tmp/iperf-{server_port}.err &"
         subprocess.run(command, shell=True)
 
     def kill_all_iperf(self):
