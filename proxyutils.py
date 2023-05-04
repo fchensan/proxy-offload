@@ -122,7 +122,7 @@ class Agent():
         subprocess.run(command, shell=True)
 
     def start_monitor_script(self, interface):
-        command = f"nohup ~/proxy-offload/proxy-host/monitor.sh 20 {interface} > /tmp/temp-monitor.log 2> /dev/null &"
+        command = f"nohup ~/proxy-offload/proxy-host/monitor.sh {interface} 20 > /tmp/temp-monitor.log 2> /dev/null &"
         subprocess.run(command, shell=True)
 
     def stop_and_retrieve_sar(self, connection):
