@@ -99,7 +99,7 @@ class Agent():
         pass
 
     def start_iperf_client(self, server_address, server_port, duration, num_streams, target_bitrate):
-        command = f"nohup iperf3 -c {server_address} -p {server_port} -t {duration} -P {num_streams} -b {target_bitrate} --timestamp > /tmp/iperf-{server_port}.log 2> /tmp/iperf-{server_port}.err &"
+        command = f"nohup iperf3 -c {server_address} -p {server_port} -t {duration} -P {num_streams} -b {target_bitrate} -i 20 --timestamp > /tmp/iperf-{server_port}.log 2> /tmp/iperf-{server_port}.err &"
         subprocess.run(command, shell=True)
 
     def kill_all_iperf(self):
