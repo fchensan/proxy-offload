@@ -51,10 +51,10 @@ start_haproxy () {
 	echo "Starting HAProxy."
 	if [[ $MODE == "tcp" ]]
 	then 
-		sudo taskset -c 0-7 haproxy -D -f $CONFIG_PATH/haproxy-tcp.cfg
+		sudo haproxy -D -f $CONFIG_PATH/haproxy-tcp.cfg
 	elif [[ $MODE == "http" ]]
 	then
-		sudo taskset -c 0-7 haproxy -D -f $CONFIG_PATH/haproxy-main.cfg
+		sudo haproxy -D -f $CONFIG_PATH/haproxy-main.cfg
 	fi
 }
 
