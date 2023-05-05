@@ -1,12 +1,12 @@
 #!/bin/bash
 echo "defaults
-   mode http
+   mode tcp
    timeout client 7200s
    timeout server 7200s
    timeout connect 60s
 "
 
-for PORT in {30000..30999}
+for PORT in {30000..39999}
 do
     echo "listen px$PORT
     bind :$PORT
