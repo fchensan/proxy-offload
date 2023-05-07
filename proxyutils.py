@@ -37,8 +37,8 @@ def monitor(interface, interval, filepath):
     with open(filepath, "w") as file:
         file.write(headers)
 
-    with open(filepath, "a") as file:
-        while True:
+    while True:
+        with open(filepath, "a") as file:
             prev_bytes_sent = counters.bytes_sent
             prev_bytes_recv = counters.bytes_recv
             prev_packets_sent = counters.packets_sent
@@ -73,8 +73,6 @@ def monitor(interface, interval, filepath):
             entry_as_string = ",".join(str(data) for data in entry)
 
             file.write(entry_as_string+"\n")
-            file.flush()
-            fsync()
 
 class Node():
     def __init__(self, address, listening_port=DEFAULT_LISTENING_PORT):
