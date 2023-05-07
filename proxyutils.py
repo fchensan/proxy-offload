@@ -5,6 +5,7 @@ from time import sleep
 import psutil
 from datetime import datetime
 from os import fsync
+from subprocess import check_output
 
 DEFAULT_LISTENING_PORT = 22346
 
@@ -24,7 +25,7 @@ def is_json(string):
     return True
 
 def monitor(interface, interval, filepath):
-    headers = "datetime,bytes_sent,bytes_recv,packets_sent,packets_recv,errin,errout,dropin,dropout,percent_memory,"
+    headers = "datetime,bytes_sent,bytes_recv,packets_sent,packets_recv,errin,errout,dropin,dropout,percent_memory,tcp_conns"
     headers += "cpu_system,cpu_idle,cpu_irq,cpu_softirq"
     # for i in range(psutil.cpu_count()):
     #     headers += f"cpu_system_{i},cpu_idle_{i},cpu_irq_{i},cpu_softirq_{i}"
@@ -64,6 +65,7 @@ def monitor(interface, interval, filepath):
             entry += [delta_bytes_sent,delta_bytes_recv,delta_packets_sent,delta_packets_recv,delta_errin,
             delta_errout,delta_dropin,delta_dropout]
             entry += [psutil.virtual_memory().percent]
+            entry += [int(check_output(['ss', '-s']).split()[3])]
             
             cpu_times = psutil.cpu_times_percent()
             entry += [cpu_times.system,cpu_times.idle,cpu_times.irq,cpu_times.softirq]
