@@ -23,9 +23,10 @@ def is_json(string):
     return True
 
 def monitor(interface, interval, filepath):
-    headers = "datetime,bytes_sent,bytes_recv,packets_sent,packets_recv,errin,errout,dropin,dropout,percent_memory"
-    for i in range(psutil.cpu_count()):
-        headers += f"cpu_system_{i},cpu_idle_{i},cpu_irq_{i},cpu_softirq_{i}"
+    headers = "datetime,bytes_sent,bytes_recv,packets_sent,packets_recv,errin,errout,dropin,dropout,percent_memory,"
+    headers += "cpu_system,cpu_idle,cpu_irq,cpu_softirq"
+    # for i in range(psutil.cpu_count()):
+    #     headers += f"cpu_system_{i},cpu_idle_{i},cpu_irq_{i},cpu_softirq_{i}"
 
     headers += "\n"
 
@@ -63,9 +64,10 @@ def monitor(interface, interval, filepath):
             delta_errout,delta_dropin,delta_dropout]
             entry += [psutil.virtual_memory().percent]
             
-            cpu_times = psutil.cpu_times_percent(percpu=True)
-            for cpu_time in cpu_times:
-                entry += [cpu_time.system,cpu_time.idle,cpu_time.irq,cpu_time.softirq]
+            cpu_times = psutil.cpu_times_percent()
+            entry += [cpu_times.system,cpu_times.idle,cpu_times.irq,cpu_times.softirq]
+            # for cpu_time in cpu_times:
+            #     entry += [cpu_time.system,cpu_time.idle,cpu_time.irq,cpu_time.softirq]
 
             entry_as_string = ",".join(str(data) for data in entry)
 
