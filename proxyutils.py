@@ -2,6 +2,8 @@ import subprocess
 import json
 import socket
 from time import sleep
+import psutil
+from datetime import datetime
 
 DEFAULT_LISTENING_PORT = 22346
 
@@ -19,6 +21,55 @@ def is_json(string):
     except ValueError as e:
         return False
     return True
+
+def monitor(interface, interval, filepath):
+    headers = "datetime,bytes_sent,bytes_recv,packets_sent,packets_recv,errin,errout,dropin,dropout,percent_memory"
+    for i in range(psutil.cpu_count()):
+        headers += f"cpu_system_{i},cpu_idle_{i},cpu_irq_{i},cpu_softirq_{i}"
+
+    headers += "\n"
+
+    bytes_sent = bytes_recv = packets_sent = packets_recv = errin = errout = dropin = dropout = 0
+    counters = psutil.net_io_counters(pernic=True)[interface]
+
+    with open(filepath, "w") as file:
+        file.write(headers)
+
+    with open(filepath, "a") as file:
+        while True:
+            prev_bytes_sent = counters.bytes_sent
+            prev_bytes_recv = counters.bytes_recv
+            prev_packets_sent = counters.packets_sent
+            prev_packets_recv = counters.packets_recv
+            prev_errin = counters.errin
+            prev_errout = counters.errout
+            prev_dropin = counters.dropin
+            prev_dropout = counters.dropout
+
+            sleep(interval)
+
+            counters = psutil.net_io_counters(pernic=True)[interface]
+            delta_bytes_sent = counters.bytes_sent - prev_bytes_sent
+            delta_bytes_recv = counters.bytes_recv - prev_bytes_recv
+            delta_packets_sent = counters.packets_sent - prev_packets_sent
+            delta_packets_recv = counters.packets_recv - prev_packets_recv
+            delta_errin = counters.errin - prev_errin
+            delta_errout = counters.errout - prev_errout
+            delta_dropin = counters.dropin - prev_dropin
+            delta_dropout = counters.dropout - prev_dropout
+
+            entry = [datetime.now()]
+            entry += [delta_bytes_sent,delta_bytes_recv,delta_packets_sent,delta_packets_recv,delta_errin,
+            delta_errout,delta_dropin,delta_dropout]
+            entry += [psutil.virtual_memory().percent]
+            
+            cpu_times = psutil.cpu_times_percent(percpu=True)
+            for cpu_time in cpu_times:
+                entry += [cpu_time.system,cpu_time.idle,cpu_time.irq,cpu_time.softirq]
+
+            entry_as_string = ",".join(str(data) for data in entry)
+
+            file.write(entry_as_string+"\n")
 
 class Node():
     def __init__(self, address, listening_port=DEFAULT_LISTENING_PORT):
@@ -49,9 +100,6 @@ class Node():
 
         # Close the socket
         sock.close()
-    
-    def start_iperf_server(self):
-        pass
 
     def start_iperf_client(self, server_address, server_port, duration, num_streams, target_bitrate):
         # Create a dictionary to send over the socket
@@ -67,6 +115,9 @@ class Node():
         pass
 
     def start_haproxy(self, path_to_config_file):
+        pass
+
+    def start_monitor():
         pass
 
     def start_sar(self):
@@ -100,15 +151,12 @@ class Node():
 class Agent():
     def __init__(self):
         pass
-    
-    def start_iperf_server(self):
-        pass
 
     def start_iperf_client(self, server_address, server_port, duration, num_streams, target_bitrate):
         if target_bitrate == None:
-            command = f"nohup iperf3 -c {server_address} -p {server_port} -t {duration} -P {num_streams} -i 20 --timestamp > /tmp/iperf-{server_port}.log 2> /tmp/iperf-{server_port}.err &"
+            command = f"nohup ~/iperf/src/iperf3 -c {server_address} -p {server_port} -t {duration} -P {num_streams} -i 20 --timestamp > /tmp/iperf-{server_port}.log 2> /tmp/iperf-{server_port}.err &"
         else:
-            command = f"nohup iperf3 -c {server_address} -p {server_port} -t {duration} -P {num_streams} -b {target_bitrate} -i 20 --timestamp > /tmp/iperf-{server_port}.log 2> /tmp/iperf-{server_port}.err &"
+            command = f"nohup ~/iperf/src/iperf3 -c {server_address} -p {server_port} -t {duration} -P {num_streams} -b {target_bitrate} -i 20 --timestamp > /tmp/iperf-{server_port}.log 2> /tmp/iperf-{server_port}.err &"
         subprocess.run(command, shell=True)
 
     def kill_all_iperf(self):
@@ -143,9 +191,7 @@ class Agent():
         json_data = json.dumps(data)
         connection.sendall(json_data.encode("utf-8"))
             
-    def stop_and_retrieve_monitor_script(self, connection):
-        command = f"sudo pkill monitor.sh;"
-        subprocess.run(command, shell=True)
+    def stop_and_retrieve_monitor(self, connection):
         with open("/tmp/temp-monitor.log", 'r') as file:
             file_contents = file.read()
             data = {"content": file_contents}
@@ -200,11 +246,8 @@ class Agent():
                     self.retrieve_iperf_log(connection, options['port'])
                 elif received_data['command'] == RESET:
                     self.reset()
-                elif received_data['command'] == START_MONITOR:
-                    options = received_data['options']
-                    self.start_monitor_script(options['interface'])
                 elif received_data['command'] == STOP_RETRIEVE_MONITOR:
-                    self.stop_and_retrieve_monitor_script(connection)
+                    self.stop_and_retrieve_monitor(connection)
 
                 # Close the connection
                 connection.close()
