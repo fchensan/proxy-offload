@@ -4,6 +4,7 @@ import socket
 from time import sleep
 import psutil
 from datetime import datetime
+from os import fsync
 
 DEFAULT_LISTENING_PORT = 22346
 
@@ -73,6 +74,7 @@ def monitor(interface, interval, filepath):
 
             file.write(entry_as_string+"\n")
             file.flush()
+            fsync()
 
 class Node():
     def __init__(self, address, listening_port=DEFAULT_LISTENING_PORT):
