@@ -72,6 +72,7 @@ def monitor(interface, interval, filepath):
             entry_as_string = ",".join(str(data) for data in entry)
 
             file.write(entry_as_string+"\n")
+            file.flush()
 
 class Node():
     def __init__(self, address, listening_port=DEFAULT_LISTENING_PORT):
