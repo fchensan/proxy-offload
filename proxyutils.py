@@ -16,6 +16,7 @@ RETRIEVE_IPERF = 3
 RESET = 4
 START_MONITOR = 5
 STOP_RETRIEVE_MONITOR = 6
+RETRIEVE_HAPROXY_LOG = 7
 
 def is_json(string):
     try:
@@ -155,6 +156,11 @@ class Node():
         with open(filepath, "w") as file:
             file.write(received_data['content'])
 
+    def retrieve_haproxy_log(self, filepath):
+        received_data = self.send_command(RETRIEVE_HAPROXY_LOG, receive=True)
+        with open(filepath, "w") as file:
+            file.write(received_data['content'])
+
     def reset(self):
         self.send_command(RESET)
 
@@ -203,6 +209,13 @@ class Agent():
             
     def stop_and_retrieve_monitor(self, connection):
         with open("/tmp/temp-monitor.log", 'r') as file:
+            file_contents = file.read()
+            data = {"content": file_contents}
+            json_data = json.dumps(data)
+            connection.sendall(json_data.encode("utf-8"))
+
+    def retrieve_haproxy_log(self, connection):
+        with open("/var/log/haproxy.log", 'r') as file:
             file_contents = file.read()
             data = {"content": file_contents}
             json_data = json.dumps(data)
@@ -258,6 +271,8 @@ class Agent():
                     self.reset()
                 elif received_data['command'] == STOP_RETRIEVE_MONITOR:
                     self.stop_and_retrieve_monitor(connection)
+                elif received_data['command'] == RETRIEVE_HAPROXY_LOG:
+                    self.retrieve_haproxy_log(connection)
 
                 # Close the connection
                 connection.close()
